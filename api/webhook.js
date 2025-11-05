@@ -1,36 +1,37 @@
 export default async function handler(req, res) {
   const MOLLIE_KEY = process.env.MOLLIE_SECRET_KEY;
-  const paymentId = req.body?.id;
+  const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+  const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
   try {
-    // Get payment details from Mollie
-    const paymentRes = await fetch(`https://api.mollie.com/v2/payments/${paymentId}`, {
-      headers: { Authorization: `Bearer ${MOLLIE_KEY}` },
-    });
-    const payment = await paymentRes.json();
+    const paymentId = req.body?.id;
+    if (!paymentId) return res.status(400).end("Missing id");
 
-    // Only create subscription after successful initial payment
-    if (payment.status === "paid" && payment.sequenceType === "first") {
-      // Create a €49 monthly subscription starting in 30 days
-      await fetch(`https://api.mollie.com/v2/customers/${payment.customerId}/subscriptions`, {
+    // 1️⃣ Get payment details from Mollie
+    const r = await fetch(`https://api.mollie.com/v2/payments/${paymentId}`, {
+      headers: { Authorization: `Bearer ${MOLLIE_KEY}` }
+    });
+    const payment = await r.json();
+
+    if (payment.status === "paid") {
+      const name = payment.metadata?.name || "Unknown";
+      const email = payment.metadata?.email || "Unknown";
+      const amount = payment.amount?.value + " " + payment.amount?.currency;
+
+      const msg = `💰 *New Payment Received!*\n\n👤 Name: ${name}\n📧 Email: ${email}\n💳 Amount: ${amount}\n🕒 Status: ${payment.status}\n🔖 ID: ${payment.id}`;
+
+      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${MOLLIE_KEY}`,
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          amount: { value: "39.00", currency: "EUR" },
-          interval: "1 month",
-          startDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-            .toISOString()
-            .split("T")[0], // 30 days from now
-          description: "Deepak Academy Monthly Subscription",
-          webhookUrl: "https://did-int-sub.vercel.app/api/webhook",
-        }),
+          chat_id: CHAT_ID,
+          text: msg,
+          parse_mode: "Markdown"
+        })
       });
     }
 
-    res.status(200).end(); // acknowledge webhook
+    res.status(200).end(); // acknowledge to Mollie
   } catch (err) {
     console.error("Webhook error:", err);
     res.status(500).end();
