@@ -21,7 +21,7 @@ export default async function handler(req, res) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        amount: { value: "49.00", currency: "EUR" },
+        amount: { value: "39.00", currency: "EUR" },
         description: "Deepak Academy DID Subscription",
         redirectUrl: "https://did-int-sub.vercel.app/success.html",
         cancelUrl: "https://did-int-sub.vercel.app/failed.html",
