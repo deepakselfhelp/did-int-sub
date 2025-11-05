@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Deepak Academy Subscription</title>
+  </head>
+  <body style="font-family:sans-serif;text-align:center;margin-top:80px;">
+    <h1>💳 Subscribe to Deepak Academy</h1>
+    <p>€49 / month — cancel anytime</p>
+    <button id="subscribeBtn" style="padding:14px 24px;font-size:18px;">Subscribe</button>
+
+    <script>
+      document.getElementById("subscribeBtn").addEventListener("click", async () => {
+        const res = await fetch("/api/create-subscription");
+        const data = await res.json();
+        window.location.href = data.checkoutUrl; // redirect to Mollie checkout
+      });
+    </script>
+  </body>
+</html>
