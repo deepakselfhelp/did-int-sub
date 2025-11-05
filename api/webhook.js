@@ -19,7 +19,7 @@ export default async function handler(req, res) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          amount: { value: "49.00", currency: "EUR" },
+          amount: { value: "39.00", currency: "EUR" },
           interval: "1 month",
           startDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
             .toISOString()
