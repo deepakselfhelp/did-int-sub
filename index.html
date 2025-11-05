@@ -8,14 +8,34 @@
   <body style="font-family:sans-serif;text-align:center;margin-top:80px;">
     <h1>💳 Subscribe to Deepak Academy</h1>
     <p>€49 / month — cancel anytime</p>
-    <button id="subscribeBtn" style="padding:14px 24px;font-size:18px;">Subscribe</button>
+   <input 
+  type="email" 
+  id="emailInput" 
+  placeholder="Enter your email" 
+  required 
+  style="padding:12px;font-size:16px;margin-bottom:10px;width:250px;"
+>
+<br>
+<button id="subscribeBtn" style="padding:14px 24px;font-size:18px;">Subscribe</button>
 
-    <script>
-      document.getElementById("subscribeBtn").addEventListener("click", async () => {
-        const res = await fetch("/api/create-subscription");
-        const data = await res.json();
-        window.location.href = data.checkoutUrl; // redirect to Mollie checkout
-      });
-    </script>
+<script>
+  document.getElementById("subscribeBtn").addEventListener("click", async () => {
+    const email = document.getElementById("emailInput").value;
+    if (!email) {
+      alert("Please enter your email first.");
+      return;
+    }
+
+    const res = await fetch("/api/create-subscription", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    window.location.href = data.checkoutUrl;
+  });
+</script>
+
   </body>
 </html>
+
