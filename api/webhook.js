@@ -27,27 +27,35 @@ export default async function handler(req, res) {
 
     // 4️⃣ If successful, send Telegram alert
     if (payment.status === "paid") {
-      const name = payment.metadata?.name || "Unknown";
-      const email = payment.metadata?.email || "Unknown";
-      const amount = payment.amount?.value + " " + payment.amount?.currency;
+  const name = payment.metadata?.name || "Unknown";
+  const email = payment.metadata?.email || "Unknown";
+  const amount = payment.amount?.value + " " + payment.amount?.currency;
 
-      const msg = `💰 *New Payment Received!*\n\n👤 Name: ${name}\n📧 Email: ${email}\n💳 Amount: ${amount}\n🕒 Status: ${payment.status}\n🔖 ID: ${payment.id}`;
+  const msg = `
+💰 <b>New Payment Received!</b>
 
-      const telegramResp = await fetch(
-        `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            chat_id: CHAT_ID,
-            text: msg,
-            parse_mode: "Markdown",
-          }),
-        }
-      );
+👤 <b>Name:</b> ${name}
+📧 <b>Email:</b> ${email}
+💳 <b>Amount:</b> ${amount}
+🕒 <b>Status:</b> ${payment.status}
+🔖 <b>ID:</b> ${payment.id}
+`;
 
-      console.log("Telegram status:", telegramResp.status);
+  const telegramResp = await fetch(
+    `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: CHAT_ID,
+        text: msg,
+        parse_mode: "HTML",
+      }),
     }
+  );
+
+  console.log("Telegram status:", telegramResp.status);
+}
 
     res.status(200).end(); // always reply 200 to Mollie
   } catch (err) {
